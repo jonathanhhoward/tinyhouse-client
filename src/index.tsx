@@ -1,7 +1,8 @@
 import React from "react";
 import { render } from "react-dom";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
-import { Listings } from "./sections/Listings";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { Home, Host, Listing, Listings, NotFound, User } from "./sections";
 import reportWebVitals from "./reportWebVitals";
 import "./styles/index.css";
 
@@ -10,10 +11,25 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+function App() {
+  return (
+    <Router>
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/host" component={Host} />
+        <Route exact path="/listing/:id" component={Listing} />
+        <Route exact path="/listings/:location?" component={Listings} />
+        <Route exact path="/user/:id" component={User} />
+        <Route component={NotFound} />
+      </Switch>
+    </Router>
+  );
+}
+
 render(
   <React.StrictMode>
     <ApolloProvider client={client}>
-      <Listings title="TinyHouse Listings" />
+      <App />
     </ApolloProvider>
   </React.StrictMode>,
   document.getElementById("root")

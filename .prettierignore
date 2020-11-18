@@ -23,12 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 debug.log*
 
-# Webstorm config folder
-/.idea
-
-# JS GraphQL plugin for Webstorm
-.graphqlconfig
-schema.graphql
-
 # Apollo generated type files
 **/__generated__
