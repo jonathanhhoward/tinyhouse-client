@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Redirect } from "react-router-dom";
-import { useApolloClient, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import { Card, Layout, Spin, Typography } from "antd";
 import { ErrorBanner } from "../../lib/components/ErrorBanner";
 import { LOG_IN } from "../../lib/graphql/mutations/LogIn";
@@ -25,13 +25,22 @@ const { Content } = Layout;
 const { Text, Title } = Typography;
 
 export function Login({ setViewer }: Props) {
-  const client = useApolloClient();
+  const [getAuthUrl] = useLazyQuery<AuthUrlData>(AUTH_URL, {
+    onCompleted(data) {
+      window.location.href = data.authUrl;
+    },
+    onError() {
+      displayErrorMessage(
+        "Sorry! We weren't able to log you in. Please try again later!"
+      );
+    },
+  });
   const [
     logIn,
     { data: logInData, loading: logInLoading, error: logInError },
   ] = useMutation<LogInData, LogInVariables>(LOG_IN, {
     onCompleted(data) {
-      if (!data?.logIn) return;
+      if (!data.logIn) return;
       setViewer(data.logIn);
       displaySuccessNotification("You've successfully logged in!");
     },
@@ -45,17 +54,6 @@ export function Login({ setViewer }: Props) {
 
     logInRef.current({ variables: { input: { code } } });
   }, []);
-
-  async function handleAuthorize() {
-    try {
-      const { data } = await client.query<AuthUrlData>({ query: AUTH_URL });
-      window.location.href = data.authUrl;
-    } catch {
-      displayErrorMessage(
-        "Sorry! We weren't able to log you in. Please try again later!"
-      );
-    }
-  }
 
   const logInErrorBannerElement = logInError ? (
     <ErrorBanner description="We weren't able to log you in. Please try again soon." />
@@ -84,7 +82,7 @@ export function Login({ setViewer }: Props) {
         </div>
         <button
           className="log-in-card__google-button"
-          onClick={handleAuthorize}
+          onClick={() => getAuthUrl()}
         >
           <img
             src={googleLogo}
