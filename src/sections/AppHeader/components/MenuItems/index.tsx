@@ -24,6 +24,7 @@ export function MenuItems({ viewer, setViewer }: Props) {
     onCompleted(data) {
       if (!data?.logOut) return;
       setViewer(data.logOut);
+      sessionStorage.removeItem("token");
       displaySuccessNotification("You've successfully logged out!");
     },
     onError() {

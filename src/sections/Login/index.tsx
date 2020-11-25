@@ -40,8 +40,9 @@ export function Login({ setViewer }: Props) {
     { data: logInData, loading: logInLoading, error: logInError },
   ] = useMutation<LogInData, LogInVariables>(LOG_IN, {
     onCompleted(data) {
-      if (!data.logIn) return;
+      if (!data.logIn.token) return;
       setViewer(data.logIn);
+      sessionStorage.setItem("token", data.logIn.token);
       displaySuccessNotification("You've successfully logged in!");
     },
   });
@@ -54,6 +55,10 @@ export function Login({ setViewer }: Props) {
 
     logInRef.current({ variables: { input: { code } } });
   }, []);
+
+  function handleGetAuthUrl() {
+    getAuthUrl();
+  }
 
   const logInErrorBannerElement = logInError ? (
     <ErrorBanner description="We weren't able to log you in. Please try again soon." />
@@ -82,7 +87,7 @@ export function Login({ setViewer }: Props) {
         </div>
         <button
           className="log-in-card__google-button"
-          onClick={() => getAuthUrl()}
+          onClick={handleGetAuthUrl}
         >
           <img
             src={googleLogo}
