@@ -13,8 +13,7 @@ import { Viewer } from "../../../../lib/types";
 
 interface Props {
   viewer: Viewer;
-
-  setViewer(viewer: Viewer): void;
+  setViewer: (viewer: Viewer) => void;
 }
 
 const { Item, SubMenu } = Menu;

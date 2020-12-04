@@ -18,7 +18,7 @@ import { Viewer } from "../../lib/types";
 import googleLogo from "./assets/google_logo.jpg";
 
 interface Props {
-  setViewer(viewer: Viewer): void;
+  setViewer: (viewer: Viewer) => void;
 }
 
 const { Content } = Layout;

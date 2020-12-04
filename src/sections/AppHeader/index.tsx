@@ -7,8 +7,7 @@ import logo from "./assets/tinyhouse-logo.png";
 
 interface Props {
   viewer: Viewer;
-
-  setViewer(viewer: Viewer): void;
+  setViewer: (viewer: Viewer) => void;
 }
 
 const { Header } = Layout;

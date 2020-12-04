@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { render } from "react-dom";
 import {
   ApolloClient,
+  HttpLink,
+  ApolloLink,
   InMemoryCache,
+  concat,
   ApolloProvider,
   useMutation,
 } from "@apollo/client";
@@ -28,12 +31,21 @@ import { Viewer } from "./lib/types";
 import reportWebVitals from "./reportWebVitals";
 import "./styles/index.css";
 
+const httpLink = new HttpLink({ uri: "/api" });
+
+const authMiddleware = new ApolloLink((operation, forward) => {
+  operation.setContext({
+    headers: {
+      "X-CSRF-TOKEN": sessionStorage.getItem("token") || "",
+    },
+  });
+
+  return forward(operation);
+});
+
 const client = new ApolloClient({
-  uri: "/api",
   cache: new InMemoryCache(),
-  headers: {
-    "X-CSRF-TOKEN": sessionStorage.getItem("token") || "",
-  },
+  link: concat(authMiddleware, httpLink),
 });
 
 const initialViewer: Viewer = {
