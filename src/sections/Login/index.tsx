@@ -3,8 +3,8 @@ import { Redirect } from "react-router-dom";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { Card, Layout, Spin, Typography } from "antd";
 import { ErrorBanner } from "../../lib/components/ErrorBanner";
-import { LOG_IN } from "../../lib/graphql/mutations/LogIn";
-import { AUTH_URL } from "../../lib/graphql/queries/AuthUrl";
+import { LOG_IN } from "../../lib/graphql/mutations";
+import { AUTH_URL } from "../../lib/graphql/queries";
 import {
   LogIn as LogInData,
   LogInVariables,
