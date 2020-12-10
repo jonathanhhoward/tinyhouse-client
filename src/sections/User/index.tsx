@@ -36,6 +36,7 @@ export function User({
       listingsPage,
       limit: PAGE_LIMIT,
     },
+    fetchPolicy: "cache-and-network",
   });
 
   const user = data?.user;
@@ -54,14 +55,15 @@ export function User({
     />
   ) : null;
 
-  const userBookingsElement = user?.bookings ? (
-    <UserBookings
-      userBookings={user?.bookings}
-      bookingsPage={bookingsPage}
-      limit={PAGE_LIMIT}
-      setBookingsPage={setBookingsPage}
-    />
-  ) : null;
+  const userBookingsElement =
+    viewerIsUser && user?.bookings ? (
+      <UserBookings
+        userBookings={user?.bookings}
+        bookingsPage={bookingsPage}
+        limit={PAGE_LIMIT}
+        setBookingsPage={setBookingsPage}
+      />
+    ) : null;
 
   return loading ? (
     <Content className="user">
