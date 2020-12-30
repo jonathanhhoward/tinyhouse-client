@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "antd";
 import { Viewer } from "../../lib/types";

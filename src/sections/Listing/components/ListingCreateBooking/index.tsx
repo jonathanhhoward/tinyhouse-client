@@ -1,4 +1,3 @@
-import React from "react";
 import moment, { Moment } from "moment";
 import { Button, Card, DatePicker, Divider, Typography } from "antd";
 import { displayErrorMessage, formatListingPrice } from "../../../../lib/utils";

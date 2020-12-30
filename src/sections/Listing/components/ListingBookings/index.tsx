@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { Avatar, Divider, List, Typography } from "antd";
 import { Listing } from "../../../../lib/graphql/queries/Listing/__generated__/Listing";

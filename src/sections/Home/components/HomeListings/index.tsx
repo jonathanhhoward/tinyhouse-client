@@ -1,4 +1,3 @@
-import React from "react";
 import { List, Typography } from "antd";
 import { ListingCard } from "../../../../lib/components";
 import { Listings } from "../../../../lib/graphql/queries/Listings/__generated__/Listings";

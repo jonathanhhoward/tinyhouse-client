@@ -1,4 +1,3 @@
-import React from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { Layout, List, Typography } from "antd";

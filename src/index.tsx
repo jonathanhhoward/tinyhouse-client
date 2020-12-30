@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { StrictMode, useState, useEffect, useRef } from "react";
 import { render } from "react-dom";
 import {
   ApolloClient,
@@ -117,11 +117,11 @@ function App() {
 }
 
 render(
-  <React.StrictMode>
+  <StrictMode>
     <ApolloProvider client={client}>
       <App />
     </ApolloProvider>
-  </React.StrictMode>,
+  </StrictMode>,
   document.getElementById("root")
 );
 

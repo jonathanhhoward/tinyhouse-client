@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { Avatar, Divider, Tag, Typography } from "antd";
 import { EnvironmentOutlined } from "@ant-design/icons";

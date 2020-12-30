@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Redirect } from "react-router-dom";
 import { useLazyQuery, useMutation } from "@apollo/client";
 import { Card, Layout, Spin, Typography } from "antd";
