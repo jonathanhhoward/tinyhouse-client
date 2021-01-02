@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { Affix, Layout, List, Typography } from "antd";
@@ -25,14 +25,22 @@ const { Paragraph, Text, Title } = Typography;
 const PAGE_LIMIT = 8;
 
 export function Listings({ match }: RouteComponentProps<MatchParams>) {
+  const location = match.params.location;
+  const locationRef = useRef(location);
   const [filter, setFilter] = useState(ListingsFilter.PRICE_LOW_TO_HIGH);
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+    locationRef.current = location;
+  }, [location]);
 
   const { data, loading, error } = useQuery<ListingsData, ListingsVariables>(
     LISTINGS,
     {
+      skip: locationRef.current !== location && page !== 1,
       variables: {
-        location: match.params.location,
+        location,
         filter,
         limit: PAGE_LIMIT,
         page,
