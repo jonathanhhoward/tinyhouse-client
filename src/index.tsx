@@ -2,31 +2,29 @@ import { StrictMode } from "react";
 import { render } from "react-dom";
 import {
   ApolloClient,
-  ApolloLink,
   ApolloProvider,
-  concat,
   HttpLink,
   InMemoryCache,
 } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import { App } from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "./styles/index.css";
 
 const httpLink = new HttpLink({ uri: "/api" });
 
-const authMiddleware = new ApolloLink((operation, forward) => {
-  operation.setContext({
+const authLink = setContext((_, { headers }) => {
+  return {
     headers: {
+      ...headers,
       "X-CSRF-TOKEN": sessionStorage.getItem("token") || "",
     },
-  });
-
-  return forward(operation);
+  };
 });
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  link: concat(authMiddleware, httpLink),
+  link: authLink.concat(httpLink),
 });
 
 render(

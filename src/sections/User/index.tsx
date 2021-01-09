@@ -36,7 +36,6 @@ export function User({
       listingsPage,
       limit: PAGE_LIMIT,
     },
-    fetchPolicy: "cache-and-network",
   });
 
   const user = data?.user;
@@ -65,6 +64,13 @@ export function User({
       />
     ) : null;
 
+  const stripeError = new URL(window.location.href).searchParams.get(
+    "stripe_error"
+  );
+  const stripeErrorBanner = stripeError ? (
+    <ErrorBanner description="We had an issue connecting with Stripe. Please try again soon." />
+  ) : null;
+
   return loading ? (
     <Content className="user">
       <PageSkeleton />
@@ -76,6 +82,7 @@ export function User({
     </Content>
   ) : (
     <Content className="user">
+      {stripeErrorBanner}
       <Row gutter={12} justify="space-between">
         <Col xs={24}>{userProfileElement}</Col>
         <Col xs={24}>
