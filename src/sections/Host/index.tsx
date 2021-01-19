@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
+import { useMutation } from "@apollo/client";
+import { HOST_LISTING } from "../../lib/graphql/mutations";
+import {
+  HostListing as HostListingData,
+  HostListingVariables,
+} from "../../lib/graphql/mutations/HostListing/__generated__/HostListing";
 import {
   Button,
   Form,
@@ -18,7 +24,11 @@ import {
 } from "@ant-design/icons";
 import { UploadChangeParam } from "antd/lib/upload";
 import { ListingType } from "../../lib/graphql/__generated__/globalTypes";
-import { iconColor } from "../../lib/utils";
+import {
+  iconColor,
+  displayErrorMessage,
+  displaySuccessNotification,
+} from "../../lib/utils";
 import { Viewer } from "../../lib/types";
 import { beforeImageUpload, getBase64Value } from "./utils";
 
@@ -28,11 +38,49 @@ interface Props {
 
 const { Content } = Layout;
 const { Text, Title } = Typography;
-const { Item } = Form;
+const { Item, useForm } = Form;
 
 export function Host({ viewer }: Props) {
   const [imageLoading, setImageLoading] = useState(false);
-  const [imageBase64Value, setImageBase64Value] = useState<string | null>(null);
+  const [imageBase64Value, setImageBase64Value] = useState("");
+
+  const [hostListing, { loading, data }] = useMutation<
+    HostListingData,
+    HostListingVariables
+  >(HOST_LISTING, {
+    onCompleted() {
+      displaySuccessNotification("You've successfully created your listing!");
+    },
+    onError() {
+      displayErrorMessage(
+        "Sorry! We weren't able to create your listing. Please try again later."
+      );
+    },
+  });
+
+  const [form] = useForm();
+
+  function handleFinish(values: any) {
+    const fullAddress = `${values.address}, ${values.city}, ${values.state}, ${values.postalCode}`;
+
+    hostListing({
+      variables: {
+        input: {
+          title: values.title,
+          description: values.description,
+          image: imageBase64Value,
+          type: values.type,
+          address: fullAddress,
+          price: values.price * 100,
+          numOfGuests: values.numOfGuests,
+        },
+      },
+    });
+  }
+
+  function handleFinishFailed() {
+    displayErrorMessage("Please complete all required form fields!");
+  }
 
   function handleImageUpload(info: UploadChangeParam) {
     const { file } = info;
@@ -50,7 +98,18 @@ export function Host({ viewer }: Props) {
     }
   }
 
-  return !viewer.id || !viewer.hasWallet ? (
+  return loading ? (
+    <Content className="host-content">
+      <div className="host__form-header">
+        <Title level={3} className="host__form-title">
+          Please wait!
+        </Title>
+        <Text type="secondary">We're creating your listing now.</Text>
+      </div>
+    </Content>
+  ) : data?.hostListing ? (
+    <Redirect to={`/listing/${data.hostListing.id}`} />
+  ) : !viewer.id || !viewer.hasWallet ? (
     <Content className="host-content">
       <div className="host__form-header">
         <Title level={4} className="host__form-title">
@@ -67,7 +126,13 @@ export function Host({ viewer }: Props) {
     </Content>
   ) : (
     <Content className="host-content">
-      <Form layout="vertical">
+      <Form
+        layout="vertical"
+        name="host_form"
+        form={form}
+        onFinish={handleFinish}
+        onFinishFailed={handleFinishFailed}
+      >
         <div className="host__form-header">
           <Title level={3} className="host__form-title">
             Hi! Let's get started listing your place.
@@ -77,7 +142,16 @@ export function Host({ viewer }: Props) {
             about your listing.
           </Text>
         </div>
-        <Item label="Home Type">
+        <Item
+          label="Home Type"
+          name="type"
+          rules={[
+            {
+              required: true,
+              message: "Please select a home type!",
+            },
+          ]}
+        >
           <Radio.Group>
             <Radio.Button value={ListingType.APARTMENT}>
               <BankOutlined style={{ color: iconColor }} />{" "}
@@ -88,13 +162,45 @@ export function Host({ viewer }: Props) {
             </Radio.Button>
           </Radio.Group>
         </Item>
-        <Item label="Title" extra="Max character count of 45">
+        <Item
+          label="Max # of Guests"
+          name="numOfGuests"
+          rules={[
+            {
+              required: true,
+              message: "Please enter the max number of guests!",
+            },
+          ]}
+        >
+          <InputNumber min={1} placeholder="4" />
+        </Item>
+        <Item
+          label="Title"
+          name="title"
+          extra="Max character count of 45"
+          rules={[
+            {
+              required: true,
+              message: "Please enter a title for your listing!",
+            },
+          ]}
+        >
           <Input
             maxLength={45}
             placeholder="The iconic and luxurious Bel-Air mansion"
           />
         </Item>
-        <Item label="Description of listing" extra="Max character count of 400">
+        <Item
+          label="Description of listing"
+          name="description"
+          extra="Max character count of 400"
+          rules={[
+            {
+              required: true,
+              message: "Please enter a description for your listing!",
+            },
+          ]}
+        >
           <Input.TextArea
             rows={3}
             maxLength={400}
@@ -104,21 +210,64 @@ export function Host({ viewer }: Props) {
             `}
           />
         </Item>
-        <Item label="Address">
+        <Item
+          label="Address"
+          name="address"
+          rules={[
+            {
+              required: true,
+              message: "Please enter an address for your listing!",
+            },
+          ]}
+        >
           <Input placeholder="251 North Bristol Avenue" />
         </Item>
-        <Item label="City/Town">
+        <Item
+          label="City/Town"
+          name="city"
+          rules={[
+            {
+              required: true,
+              message: "Please enter a city (or region) for your listing!",
+            },
+          ]}
+        >
           <Input placeholder="Los Angeles" />
         </Item>
-        <Item label="State/Province">
+        <Item
+          label="State/Province"
+          name="state"
+          rules={[
+            {
+              required: true,
+              message: "Please enter a state for your listing!",
+            },
+          ]}
+        >
           <Input placeholder="California" />
         </Item>
-        <Item label="Zip/Postal Code">
+        <Item
+          label="Zip/Postal Code"
+          name="postalCode"
+          rules={[
+            {
+              required: true,
+              message: "Please enter a zip code for your listing!",
+            },
+          ]}
+        >
           <Input placeholder="Please enter a zip code for your listing!" />
         </Item>
         <Item
           label="Image"
+          name="image"
           extra="Images have to be under 1MB in size and of type JPG or PNG"
+          rules={[
+            {
+              required: true,
+              message: "Please enter provide an image for your listing!",
+            },
+          ]}
         >
           <div className="host__form-image-upload">
             <Upload
@@ -140,11 +289,23 @@ export function Host({ viewer }: Props) {
             </Upload>
           </div>
         </Item>
-        <Item label="Price" extra="All prices in $USD/day">
+        <Item
+          label="Price"
+          name="price"
+          extra="All prices in $USD/day"
+          rules={[
+            {
+              required: true,
+              message: "Please enter a price for your listing!",
+            },
+          ]}
+        >
           <InputNumber min={0} placeholder="120" />
         </Item>
         <Item>
-          <Button type="primary">Submit</Button>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
         </Item>
       </Form>
     </Content>
