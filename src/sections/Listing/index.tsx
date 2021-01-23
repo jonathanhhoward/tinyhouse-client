@@ -13,6 +13,7 @@ import { Viewer } from "../../lib/types";
 import {
   ListingBookings,
   ListingCreateBooking,
+  ListingCreateBookingModal,
   ListingDetails,
 } from "./components";
 
@@ -34,6 +35,7 @@ export function Listing({
   const [bookingsPage, setBookingsPage] = useState(1);
   const [checkInDate, setCheckInDate] = useState<Moment | null>(null);
   const [checkOutDate, setCheckOutDate] = useState<Moment | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const { data, loading, error } = useQuery<ListingData, ListingVariables>(
     LISTING,
@@ -72,8 +74,20 @@ export function Listing({
       checkOutDate={checkOutDate}
       setCheckInDate={setCheckInDate}
       setCheckOutDate={setCheckOutDate}
+      setModalVisible={setModalVisible}
     />
   ) : null;
+
+  const listingCreateBookingModalElement =
+    listing && checkInDate && checkOutDate ? (
+      <ListingCreateBookingModal
+        price={listing.price}
+        modalVisible={modalVisible}
+        checkInDate={checkInDate}
+        checkOutDate={checkOutDate}
+        setModalVisible={setModalVisible}
+      />
+    ) : null;
 
   return loading ? (
     <Content className="listing">
@@ -95,6 +109,7 @@ export function Listing({
           {listingCreateBookingElement}
         </Col>
       </Row>
+      {listingCreateBookingModalElement}
     </Content>
   );
 }
