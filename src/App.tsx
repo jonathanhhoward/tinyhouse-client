@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Viewer } from "./lib/types";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { StripeProvider, Elements } from "react-stripe-elements";
+import { Affix, Layout, Spin } from "antd";
 import { useMutation } from "@apollo/client";
 import {
   LogIn as LogInData,
@@ -7,8 +9,7 @@ import {
 } from "./lib/graphql/mutations/LogIn/__generated__/LogIn";
 import { LOG_IN } from "./lib/graphql/mutations";
 import { AppHeaderSkeleton, ErrorBanner } from "./lib/components";
-import { Affix, Layout, Spin } from "antd";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { Viewer } from "./lib/types";
 import {
   AppHeader,
   Home,
@@ -61,47 +62,53 @@ export function App() {
       </div>
     </Layout>
   ) : (
-    <Router>
-      <Layout id="app">
-        {logInErrorBannerElement}
-        <Affix offsetTop={0} className="app__affix-header">
-          <AppHeader viewer={viewer} setViewer={setViewer} />
-        </Affix>
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route
-            exact
-            path="/host"
-            render={(props) => <Host {...props} viewer={viewer} />}
-          />
-          <Route
-            exact
-            path="/listing/:id"
-            render={(props) => <Listing {...props} viewer={viewer} />}
-          />
-          <Route exact path="/listings/:location?" component={Listings} />
-          <Route
-            exact
-            path="/login"
-            render={(props) => <Login {...props} setViewer={setViewer} />}
-          />
-          <Route
-            exact
-            path="/stripe"
-            render={(props) => (
-              <Stripe {...props} viewer={viewer} setViewer={setViewer} />
-            )}
-          />
-          <Route
-            exact
-            path="/user/:id"
-            render={(props) => (
-              <User {...props} viewer={viewer} setViewer={setViewer} />
-            )}
-          />
-          <Route component={NotFound} />
-        </Switch>
-      </Layout>
-    </Router>
+    <StripeProvider apiKey={process.env.REACT_APP_S_PUBLISHABLE_KEY as string}>
+      <Router>
+        <Layout id="app">
+          {logInErrorBannerElement}
+          <Affix offsetTop={0} className="app__affix-header">
+            <AppHeader viewer={viewer} setViewer={setViewer} />
+          </Affix>
+          <Switch>
+            <Route exact path="/" component={Home} />
+            <Route
+              exact
+              path="/host"
+              render={(props) => <Host {...props} viewer={viewer} />}
+            />
+            <Route
+              exact
+              path="/listing/:id"
+              render={(props) => (
+                <Elements>
+                  <Listing {...props} viewer={viewer} />
+                </Elements>
+              )}
+            />
+            <Route exact path="/listings/:location?" component={Listings} />
+            <Route
+              exact
+              path="/login"
+              render={(props) => <Login {...props} setViewer={setViewer} />}
+            />
+            <Route
+              exact
+              path="/stripe"
+              render={(props) => (
+                <Stripe {...props} viewer={viewer} setViewer={setViewer} />
+              )}
+            />
+            <Route
+              exact
+              path="/user/:id"
+              render={(props) => (
+                <User {...props} viewer={viewer} setViewer={setViewer} />
+              )}
+            />
+            <Route component={NotFound} />
+          </Switch>
+        </Layout>
+      </Router>
+    </StripeProvider>
   );
 }
